@@ -3,6 +3,7 @@ import time
 import torch
 from happytransformer import HappyWordPrediction
 
+
 # detect hardware gpu or cpu
 def detect():
     if torch.cuda.is_available():
@@ -35,12 +36,15 @@ def setup_model():
 
 
 def predict(user_input, predictor):
-    result = predictor.predict_mask(user_input + "[MASK]", top_k=20)
+    max_predictions = 20
+
+    result = predictor.predict_mask(user_input + " [MASK]", top_k=max_predictions)
     return result
 
 
 # main function
 def main():
+    prediction_variant = 1
     detect()
     predictor = setup_model()
 
@@ -49,8 +53,13 @@ def main():
 
     while True:
         new_input = predict(user_input, predictor)
+        # if new_input[].token is not greater than 1 character long, then add 1 to predictionVariant
+        if len(new_input[prediction_variant].token) == 1:
+            prediction_variant += 1
+        if len(new_input[prediction_variant].token) > 1:
+            user_input = user_input + " " + new_input[prediction_variant].token
+
         print(user_input)
-        user_input = user_input + new_input[5].token
         next_words = get_input()
         user_input = user_input + " " + next_words
 
